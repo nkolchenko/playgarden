@@ -1,31 +1,32 @@
 #!/usr/local/bin/python
 
-import _mysql
+#import _mysql
+import sys
 import datetime
 from datetime import timedelta
+import MySQLdb
 
-check_date = datetime.date.today() - timedelta(2) # нам надо инфа за прошедшую дату
-#check_date=20160213
-#print check_date
 
+check_date = datetime.date.today() - timedelta(2)
 my_date = check_date.strftime('%Y%m%d')
-#my_date = str(my_date)
-#print my_date
 
-#открываю конекшн
-cnx = _mysql.connect(user='root', passwd='',
-                              host='127.0.0.1',
-                              db='strikead')
 
-#готовлю SELECT statement
+connection = MySQLdb.connect (host = "localhost", user = "root", db = "strikead")
+cursor = connection.cursor ()
+
 my_query="select * from strikead where date="+my_date
 
-#стреляю
-cnx.query(my_query)
-r=cnx.store_result()
+cursor.execute(my_query)
+data = cursor.fetchall ()
 
-print str(r.fetch_row(maxrows=0))
+for row in data :
+    print "Sizmek's daily statistic for Smaato\n"\
+          "date: "+str(row[0])+"\n"\
+          "bids: "+str(row[6])+"\n"\
+          "impressions: "+str(row[2])+"\n"\
+          "media_spent: "+str(row[3])+"\n"\
 
+cursor.close ()
+connection.close ()
 
-cnx.close()
-
+sys.exit()
