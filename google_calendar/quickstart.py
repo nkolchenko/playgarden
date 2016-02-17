@@ -88,79 +88,27 @@ def main():
         print(start, event['summary'])
 
     event = {
-    'summary': 'Google I/O 2015',
-    'location': '800 Howard St., San Francisco, CA 94103',
-    'description': 'A chance to hear more about Google\'s developer products.',
+    'summary': 'TEST',
+    'location': '',
+    'description': '',
     'start': {
-        'dateTime': '2016-02-28T09:00:00-07:00',
+        'dateTime': '2016-02-22T16:00:00',
         'timeZone': 'America/Los_Angeles',
     },
     'end': {
-        'dateTime': '2016-02-28T17:00:00-07:00',
+        'dateTime': '2016-02-22T17:00:00',
         'timeZone': 'America/Los_Angeles',
-    },
-    'recurrence': [
-        'RRULE:FREQ=DAILY;COUNT=2'
-    ],
-    'attendees': [
-        {'email': 'lpage@example.com'},
-        {'email': 'sbrin@example.com'},
-    ],
-    'reminders': {
-        'useDefault': False,
-        'overrides': [
-            {'method': 'email', 'minutes': 24 * 60},
-            {'method': 'popup', 'minutes': 10},
-        ],
-    },
+    }
 }
 
-    event = service.events().insert(calendarId='primary',
+    event = service.events().insert(calendarId='maj7hlnmpl5398dqsh5u9qcod4@group.calendar.google.com',
                                     body=event).execute()
     # maj7hlnmpl5398dqsh5u9qcod4@group.calendar.google.com
-    print ('Event created: %s') % (event.get('htmlLink'))
+    print ('Event created: %s' % (event.get('htmlLink')))
 
 
 #    add_ivent()
 
-def add_ivent():
-    credentials = get_credentials()
-    print("Credentials: "+str(credentials)+"\n")
-#    http = credentials.authorize(httplib2.Http())
-#    flow = flow_from_clientsecrets(CLIENT_SECRET_FILE, scope=SCOPE_S)
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-
-    event = {
-    'summary': 'Google I/O 2015',
-    'location': '800 Howard St., San Francisco, CA 94103',
-    'description': 'A chance to hear more about Google\'s developer products.',
-    'start': {
-        'dateTime': '2016-02-28T09:00:00-07:00',
-        'timeZone': 'America/Los_Angeles',
-    },
-    'end': {
-        'dateTime': '2016-02-28T17:00:00-07:00',
-        'timeZone': 'America/Los_Angeles',
-    },
-    'recurrence': [
-        'RRULE:FREQ=DAILY;COUNT=2'
-    ],
-    'attendees': [
-        {'email': 'lpage@example.com'},
-        {'email': 'sbrin@example.com'},
-    ],
-    'reminders': {
-        'useDefault': False,
-        'overrides': [
-            {'method': 'email', 'minutes': 24 * 60},
-            {'method': 'popup', 'minutes': 10},
-        ],
-    },
-}
-
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    print ('Event created: %s') % (event.get('htmlLink'))
 
 if __name__ == '__main__':
     main()
