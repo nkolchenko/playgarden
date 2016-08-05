@@ -1,42 +1,37 @@
 #!/usr/bin/python
 
+import os.path
 import csv
 import datetime
 from datetime import timedelta
+import pymysql as mdb
 
-check_date = datetime.date.today() - timedelta(10)
-underscored=datetime.datetime.strptime(str(check_date), '%Y-%m-%d').strftime('%Y_%m_%d')
+date = datetime.date.today() - timedelta(3)
+def pubmatic(date):
 
-with open('pubmatic_'+str(underscored)+'.csv') as csvfile:
-     reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
-     for row in reader:
-         if (row['Date'] == str(check_date)):
-             print(row['Date'], row['Paid Impressions'], row['Spend($)'])
+#    check_date = datetime.date.today() - timedelta(3)
+#    underscored=datetime.datetime.strptime(str(check_date), '%Y-%m-%d').strftime('%Y_%m_%d')
 
-#""
-#"Date", "Spend($)", "Paid Impressions"
-#"2016-08-01", "40.73", "59593"
-#"2016-08-02", "93.10", "101193"
-#"Total", "133.83", "160786"
+    path = './'
+    report_file='{path}pubmatic_{date}.csv'.format(path=path,
+                                                   date=date.strftime('%Y_%m_%d'))
 
-csvfile.close()
+    if not os.path.isfile(report_file):
+        print("Warning! No Pubmatic csv for {date}".format(date=date))
+
+    else:
+        print(str(report_file))
+        with open(report_file) as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+            for row in reader:
+                if (row['Date'] == str(date)):
+                    print(str('ok'))
+                    return(row['Date'],
+                          'pubmatic',
+                          float(row['Spend($)']),
+                          int(row['Paid Impressions']))
 
 
-#query = '''INSERT INTO {ssp} (date, ssp, impressions, spent)
-#           VALUES ("{date}", "{ssp}", {impressions}, {spent});'''
-#con = mdb.connect('localhost', 'root', '', 'discrepancy_check')
-#cur = con.cursor()
-
-#try:
-#    cur.execute(query.format(date=data[0],
-#                             ssp=data[1],
-#                             impressions=data[2],
-#                             spent=data[3]))
-#    con.commit()
-
-#except:
-#    con.rollback()
-
-#con.close()
-
+if __name__ == '__main__':
+    pubmatic(date)
 
