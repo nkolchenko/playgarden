@@ -31,7 +31,6 @@ def pubmatic(date):
                           float(row['Spend($)']),
                           int(row['Paid Impressions']))
 
-
 if __name__ == '__main__':
     pubmatic(date)
 
