@@ -18,15 +18,18 @@ def updateJsonFile():
         my_check = li_settings.get('inventory_type', "empty")  # checks is inventory_type exists
         if my_check == "empty":
             # here we should ADD missed targeting
-            print str("There is no such targenting for LI") # here we should ADD missed targeting
+            #print str("There is no such targenting for LI") # here we should ADD missed targeting
+            li_settings['inventory_type']=[u"mobile_app"]
+ #           print li_settings['inventory_type']
         else:
             # here we need to replace any content with mobile_app
-            print inner['inventory_type']
+            li_settings['inventory_type'] = [u"mobile_app"]
+ #           print li_settings['inventory_type']
 
 
-# jsonFile = open("./6882_py.json", "w+")
-#    jsonFile.write(json.dumps(data))
-#    jsonFile.close()
+    jsonFile = open("./test10494.json", "w+")
+    jsonFile.write(json.dumps(data))
+    jsonFile.close()
 
 if __name__ == '__main__':
     sys.exit(updateJsonFile())
