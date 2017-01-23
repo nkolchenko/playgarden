@@ -25,7 +25,3 @@ with open('./10494.jq.json', "rw") as jsonFile:
     #jsonFile.write(json.dumps(data))
     o=json.dumps(data)
     jsonFile.write(json.dumps(data))
-
-
-
-
