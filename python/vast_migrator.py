@@ -13,17 +13,17 @@ db_connection = pymysql.connect(host='localhost',
 
 
 try:
-    with db_connection.cursor() as cursor:
+    with db_connection, db_connection.cursor() as cursor:
         sql = "SELECT `id` FROM `creative` limit 2"
         cursor.execute(sql)
         for row in cursor:
-            #print(row)
+#            print(row['id'])
             uid=uuid.uuid4()
-            file_name = str(uid)+'.xml'
+            file_name = str(dir)+ str(uid)+'.xml'
             #print dir+file_name
-            file = open('file_name' , 'wb')
-            file.write(str(row));
-            file.close()
+            with open(file_name , 'wb') as fo:
+                fo.write(str(row['id']))
+                fo.close()
 
 finally:
     db_connection.close()
