@@ -15,7 +15,7 @@ db_connection = pymysql.connect(host='localhost',
 
 try:
     with db_connection, db_connection.cursor() as cursor:
-        sql = "SELECT `id`,`tracking_code` FROM `creative` limit 2"
+        sql = "SELECT id, tracking_code FROM creative WHERE creative_type_id = 5 AND (vast_url IS NULL OR vast_url = '')"
         cursor.execute(sql)
         print 'Uploading files: '
         for row in cursor:
@@ -30,8 +30,8 @@ try:
             s3.Bucket('strikead-vast-creatives').put_object(ACL='public-read',Body=tracking_code,
                                                             Key=key_name,ContentType='text/xml')
 
-            url='https://strikead-vast-creatives.s3.amazonaws.com/'+str(key_name)
-            counter=counter+1
+            url = 'https://strikead-vast-creatives.s3.amazonaws.com/'+str(key_name)
+            counter = counter+1
             print 'Creative: '+str(i_creative)+' has been uploaded to: '+str(url)
             with db_connection, db_connection.cursor() as cursor2:
                 sql2 = 'UPDATE `creative` SET vast_url="%s" where id=%s' %(url , i_creative)
