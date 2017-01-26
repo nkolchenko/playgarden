@@ -2,11 +2,9 @@
 import pymysql.cursors
 import uuid
 import boto3
-import requests
-import botocore.session
 
-dir='/Users/nkolchenko/tmp/'
 counter = 0
+s3 = boto3.resource('s3')
 
 db_connection = pymysql.connect(host='localhost',
                              user='root',
@@ -15,37 +13,33 @@ db_connection = pymysql.connect(host='localhost',
                              charset='utf8',
                              cursorclass=pymysql.cursors.DictCursor)
 
-
 try:
     with db_connection, db_connection.cursor() as cursor:
-        sql = "SELECT `id` FROM `creative` limit 1"
+        sql = "SELECT `id`,`tracking_code` FROM `creative` limit 2"
         cursor.execute(sql)
         print 'Uploading files: '
         for row in cursor:
-            uid=uuid.uuid4()
-            file_name = str(uid)+'.xml'
-            path_name = str(dir)+str(file_name)
-            with open(path_name , 'wb') as fo:
-                fo.write(str(row['id']))
-                fo.close()
+            uid = uuid.uuid4()
+            key_name = str(uid)+'.xml'
+            i_creative = str(row['id'])
+            tracking_code = str(row['tracking_code'])
+#            print tracking_code
+#            print i_creative
+#            print key_name
+
+            s3.Bucket('strikead-vast-creatives').put_object(ACL='public-read',Body=tracking_code,
+                                                            Key=key_name,ContentType='text/xml')
+
+            url='https://strikead-vast-creatives.s3.amazonaws.com/'+str(key_name)
             counter=counter+1
-            print 'file '+str(counter)+' : '+str(file_name)
-
-            with open(path_name, 'r') as fo:
-                 content = fo.read(10)
-                 fo.close()
-            s3 = boto3.resource('s3')
-            s3_client = boto3.client('s3')
-            s3.Bucket('strikead-vast-creatives').put_object(ACL='public-read',Body=content,
-                                                            Key=file_name,ContentType='text/xml')
-
-            url = s3_client.generate_presigned_url(ClientMethod='get_object',Params={'Bucket': 'strikead-vast-creatives',
-                                                                              'Key': file_name})
-            response = requests.get(url)
-            url_part = url.split('?')
-            url_part = url_part[0]
-            print 'Uploaded to: '+str(url_part)
+            print 'Creative: '+str(i_creative)+' has been uploaded to: '+str(url)
+            with db_connection, db_connection.cursor() as cursor2:
+                sql2 = 'UPDATE `creative` SET vast_url="%s" where id=%s' %(url , i_creative)
+#                print 'Updating DB wth: '+str(sql2)
+                cursor2.execute(sql2)
+#                print 'updated DB'
 
 finally:
     db_connection.close()
+    print '\n '+str(counter)+' Files uploaded'
 
