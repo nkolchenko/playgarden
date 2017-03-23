@@ -1,62 +1,92 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
+from bs4 import BeautifulSoup
+import json
 import re
 import requests
 
-# get token from api server
-# auth on api.strikead.com requires json like:
-#  { "email": "nobodyone@example.com", "password": "ololo"}
-
-with open('./sign_in.json', "r") as jsonFile:
-    data = json.load(jsonFile)
-
-auth = requests.post("https://api.strikead.com/v1.1/login", json = data)
-silex = auth.json()["token"]
-
-# TODO: automated retrieval of creative Ids
-
-collection = [
-xxxxxxx,
-yyyyyyy
-]
+fusion_base = 'https://api.strikead.com/v1.1'
 
 
-for creative_id in collection:
+def transform_tracking_code(tracking_code):
+    match = re.search('SRC=".* BORDER', tracking_code)  # search for particular pattern in "tracking code"
+    match = match.group(0)
+
+    tr_code = match.replace('\"', '')  # don't know how to substitute everything I need;
+    tr_code = tr_code.replace('SRC=', '')  # thus there are 3 iterations
+    tr_code = tr_code.replace(' BORDER', '')
+
+    return tr_code
+
+
+def transform_tracking_code2(tracking_code):
     try:
-        payload = {'Content-Type': 'application/json','X-Authorization' : silex }
-        r = requests.get("https://api.strikead.com/v1.1/creatives/"+str(creative_id), headers=payload)
+        soup = BeautifulSoup(tracking_code, 'html.parser')
+        return soup.img['src']
+    except (TypeError, KeyError):
+        return tracking_code
 
-        creative_data = r.json()
 
-#        print json.dumps(creative_data, sort_keys=True, indent=4, separators=(',', ': '))
+def main():
+    # get token from api server
+    # auth on api.strikead.com requires json like:
+    #  { "email": "nobodyone@example.com", "password": "ololo"}
 
-        if (creative_data["type"] == "image"):
-            url = creative_data["tracking_code"]
+    with open('./sign_in.json', 'r') as json_file:
+        data = json.load(json_file)
 
-            substr = re.search('SRC=".* BORDER',url)  #search for particula pattern in "tracking code"
-            substr = substr.group(0)
-#            print substr
-            tr_code = substr.replace('\"', '')        # don't know how to substitute everything I need;
-            tr_code = tr_code.replace('SRC=', '')     # thus there are 3 iterations
-            tr_code = tr_code.replace(' BORDER', '')
-#            print tr_code
+    try:
+        auth = requests.post('{0}/login'.format(fusion_base), json=data)
+        auth.raise_for_status()
+        silex = auth.json()['token']
+    except (requests.HTTPError, KeyError):
+        print('Failed to authorise')
+        return
 
-            creative_data["tracking_code"] = tr_code
+    # TODO: automated retrieval of creative Ids
 
-#            print json.dumps(creative_data, sort_keys=True, indent=4, separators=(',', ': '))
+    creative_ids = [
+        'xxxxxxx',
+        'yyyyyyy'
+    ]
 
-            payload = {'Content-Type': 'application/json','X-Authorization' : silex }
-            r = requests.put("https://api.strikead.com/v1.1/creatives/"+str(creative_id),
-                             json=creative_data, headers=payload)
+    for creative_id in creative_ids:
+        try:
+            headers = {'Accept': 'application/json', 'X-Authorization': silex}
+            r = requests.get('{0}/creatives/{1}'.format(fusion_base, creative_id), headers=headers)  # XXX:
+            r.raise_for_status()
+
+            creative_data = r.json()
+
+            if creative_data['type'] != 'image':
+                continue
+
+            # --------------------------------------
+
+            tracking_code = creative_data['tracking_code']
+
+            creative_data['tracking_code'] = transform_tracking_code(tracking_code)
+
+            # --------------------------------------
+
+            r = requests.put('{0}/creatives/{1}'.format(fusion_base, creative_id),
+                             json=creative_data, headers=headers)  # XXX
+            r.raise_for_status()
+
             print(r.status_code)
-            print r.text
+            print(r.text)
 
-    except Exception as e:
-        print("FAILED TO PROCESS CREATIVE_ID {0}".format(creative_id))
+        except ValueError:
+            print('FAILED TO PROCESS CREATIVE_ID {0}: response is invalid JSON'.format(creative_id))
+
+        except KeyError:
+            print('FAILED TO PROCESS CREATIVE_ID {0}: invalid creative format'.format(creative_id))
+
+        except requests.HTTPError:
+            print('FAILED TO PROCESS CREATIVE_ID {0}: error contacting server'.format(creative_id))
 
 
-
-
-
-
-
+if __name__ == '__main__':
+    main()

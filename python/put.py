@@ -3,16 +3,20 @@
 # auth on api.strikead.com. Requires json in format:
 #  { "email": "nobodyone@example.com", "password": "ololo"}
 
-
 import requests
 import json
 
-with open('./sign_in.json', "r") as jsonFile:
-    data = json.load(jsonFile)
+fusion_base = 'https://api.strikead.com/v1.1'
 
-r = requests.post("https://api.strikead.com/v1.1/login", json = data)
-print(r.status_code)
-print r.json()
-silex = r.json()["token"]
+with open('./sign_in.json', 'r') as json_file:
+    data = json.load(json_file)
 
-print silex
+try:
+    auth = requests.post('{0}/login'.format(fusion_base), json=data)
+    auth.raise_for_status()
+    silex = auth.json()['token']
+except (requests.HTTPError, KeyError):
+    print('Failed to authorise')
+    return
+
+
