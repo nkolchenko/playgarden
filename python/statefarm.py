@@ -24,7 +24,7 @@ def transform_tracking_code(tracking_code):
 def transform_tracking_code2(tracking_code):
     try:
         soup = BeautifulSoup(tracking_code, 'html.parser')
-        return soup.img['src']
+        return soup.a['href']
     except (TypeError, KeyError):
         return tracking_code
 
@@ -34,7 +34,7 @@ def main():
     # auth on api.strikead.com requires json like:
     #  { "email": "nobodyone@example.com", "password": "ololo"}
 
-    with open('./sign_in.json', 'r') as json_file:
+    with open('/Users/nkolchenko/fusion-api/sign_in.json', 'r') as json_file:
         data = json.load(json_file)
 
     try:
@@ -48,8 +48,7 @@ def main():
     # TODO: automated retrieval of creative Ids
 
     creative_ids = [
-        'xxxxxxx',
-        'yyyyyyy'
+        'xxxxx'
     ]
 
     for creative_id in creative_ids:
@@ -66,9 +65,9 @@ def main():
             # --------------------------------------
 
             tracking_code = creative_data['tracking_code']
-
-            creative_data['tracking_code'] = transform_tracking_code(tracking_code)
-
+#            print("Got: "+str(tracking_code))
+            creative_data['tracking_code'] = transform_tracking_code2(tracking_code)
+            print(str(creative_data['id'])+" transformed to : "+str(creative_data['tracking_code']))
             # --------------------------------------
 
             r = requests.put('{0}/creatives/{1}'.format(fusion_base, creative_id),
@@ -76,7 +75,7 @@ def main():
             r.raise_for_status()
 
             print(r.status_code)
-            print(r.text)
+#            print(r.text)
 
         except ValueError:
             print('FAILED TO PROCESS CREATIVE_ID {0}: response is invalid JSON'.format(creative_id))
