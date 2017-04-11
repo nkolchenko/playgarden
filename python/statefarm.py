@@ -10,6 +10,9 @@ import requests
 fusion_base = 'https://api.strikead.com/v1.1'
 
 
+#< A HREF = "https://ad.doubleclick.net/ddm/jump/N9724.1907888SIZMEK/B10975142.146368730;sz=1x1;ord=[timestamp]?" >
+#< IMG SRC = "https://ad.doubleclick.net/ddm/ad/N9724.1907888SIZMEK/B10975142.146368730;sz=1x1;ord=[timestamp];dc_lat=;dc_rdid=;tag_for_child_directed_treatment=?" BORDER = 0 WIDTH = 1 HEIGHT = 1 ALT = "Advertisement" > < / A >
+
 def transform_tracking_code(tracking_code):
     match = re.search('SRC=".* BORDER', tracking_code)  # search for particular pattern in "tracking code"
     match = match.group(0)
@@ -20,7 +23,6 @@ def transform_tracking_code(tracking_code):
 
     return tr_code
 
-
 def transform_tracking_code2(tracking_code):
     try:
         soup = BeautifulSoup(tracking_code, 'html.parser')
@@ -28,6 +30,16 @@ def transform_tracking_code2(tracking_code):
     except (TypeError, KeyError):
         return tracking_code
 
+def transform_tracking_code3(tracking_code):
+    try:
+#        print("was: "+str(tracking_code))
+        tr_code = tracking_code.replace('/ddm/jump/', '/ddm/ad/')  # don't know how to substitute everything I need;
+        tr_code = tr_code.replace('ord=[timestamp]', 'ord=[timestamp];dc_lat=;dc_rdid=;tag_for_child_directed_treatment=')
+#        print("now: " + str(tracking_code))
+        return tr_code
+
+    except (TypeError, KeyError):
+        return tracking_code
 
 def main():
     # get token from api server
@@ -48,7 +60,7 @@ def main():
     # TODO: automated retrieval of creative Ids
 
     creative_ids = [
-        'xxxxx'
+        'xxxxxx'
     ]
 
     for creative_id in creative_ids:
@@ -65,8 +77,8 @@ def main():
             # --------------------------------------
 
             tracking_code = creative_data['tracking_code']
-#            print("Got: "+str(tracking_code))
-            creative_data['tracking_code'] = transform_tracking_code2(tracking_code)
+            print("Got: "+str(tracking_code))
+            creative_data['tracking_code'] = transform_tracking_code3(tracking_code)
             print(str(creative_data['id'])+" transformed to : "+str(creative_data['tracking_code']))
             # --------------------------------------
 
