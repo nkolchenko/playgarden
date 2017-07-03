@@ -20,7 +20,7 @@ except (requests.HTTPError, KeyError):
 
 
 campaign_ids = [
-    6882
+    12200
     ]
 
 
@@ -32,7 +32,7 @@ for campaign_id in campaign_ids:
 
         camp_data = r.json()
 
-        print("Got: "+str(camp_data['line_items']))
+        #print("Got: "+str(camp_data['line_items']))
 
             # --------------------------------------
 

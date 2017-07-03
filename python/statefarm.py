@@ -95,8 +95,6 @@ def main():
         except KeyError:
             print('FAILED TO PROCESS CREATIVE_ID {0}: invalid creative format'.format(creative_id))
 
-        except requests.HTTPError:
-            print('FAILED TO PROCESS CREATIVE_ID {0}: error contacting server'.format(creative_id))
 
 
 if __name__ == '__main__':
