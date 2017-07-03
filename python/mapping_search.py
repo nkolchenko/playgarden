@@ -3,7 +3,6 @@
 # the tool that checks if there is a mapping for particular career in mappining JSON
 # JSON looks like that.
 #{
-#    "description": "Mobile Carriers",
 #    "mapping": [
 #        {
 #            "exchange": "google",
@@ -20,7 +19,9 @@
 from __future__ import print_function
 import json
 from operator import itemgetter
-pattern='404-09'
+pattern_list=['404-09','404-10']
+exch_list=['google','axonix','smartrtb','opera','smaato','pubmatic',
+          'mopub','nexage','rubicon','openrtb20','openrtb21','GENERIC']
 
 file='/Users/nkolchenko/mappings/data/carriers.json'
 
@@ -31,20 +32,30 @@ with open(file) as mappings_file:
     i=0
     count=0
     while i < len(mapping):
-        section=mapping[i]
-        map=section['map']
-        #print(str(section['exchange'])+' has '+str(len(map))+' entries')
+#   lets process each entity in mapping list
+        entity=mapping[i]
+        map=entity['map']
         i=i+1
         n=0
-        while n<len(map):
-            element=map[n]
-            n=n+1
 
-            if element['key'] == pattern:
-                #print(section['exchange'])
-                #print(element)
-                count=count+1
-    print('pattern '+str(pattern)+ ' is found for '+str(count)+' exchanges')
+        if entity['exchange'] in exch_list:
+#       lets get data only for exchanges needed
+
+            count=0
+            while n<len(map): # processing each element of 'map'
+                element=map[n]
+
+                if element['key'] in pattern_list:
+                    #print(element)
+                    count=count+1
+                n = n + 1
+
+            if count != 0:
+                print(str(entity['exchange'])+' contains '+str(count)+' patterns out of '+str(len(pattern_list)))
+            else:
+                print(str(entity['exchange']))
+
+
 
 
 
