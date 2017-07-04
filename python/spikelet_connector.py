@@ -13,7 +13,7 @@ from itertools import islice
 import pymysql.cursors
 import requests
 
-# spikelet_host='spikelet.t5.va.us.strikead.com'
+# spikelet_host='_testing5'
 
 spikelet_port = 9000
 spikelet_url = 'http://{0}:{1}/report/v1/evaluate?token=staff'.format(spikelet_host, spikelet_port)
