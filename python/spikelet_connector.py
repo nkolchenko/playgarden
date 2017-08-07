@@ -13,15 +13,17 @@ from itertools import islice
 import pymysql.cursors
 import requests
 
-# spikelet_host='_testing5'
+spikelet_host_testing='1.spikelet.etl.t5.va.us.strikead.com'
+spikelet_host='spikelet.p.va.us.strikead.com'
 
 spikelet_port = 9000
 spikelet_url = 'http://{0}:{1}/report/v1/evaluate?token=staff'.format(spikelet_host, spikelet_port)
 
-start_date = '2017-03-29'
-end_date = '2017-03-30'
+# start_date = '2017-03-29'
+# end_date = '2017-03-30'
 
-db_connection = pymysql.connect(host='localhost',
+def db_connection():
+    return pymysql.connect(host='localhost',
                                 user='root',
                                 password='',
                                 db='discrepancy_check',
@@ -30,11 +32,11 @@ db_connection = pymysql.connect(host='localhost',
 
 
 def main_cycle():
-    data = utc_fetch_from_spikelet(start_date, end_date)
-    store_in_mysql(data)
+    data = utc_fetch_from_spikelet()
+    #store_in_mysql(data)
 
 
-def utc_fetch_from_spikelet(start_date, end_date):
+def utc_fetch_from_spikelet():
     """
     It gets structure like:
 
@@ -45,7 +47,7 @@ def utc_fetch_from_spikelet(start_date, end_date):
 
     """
     # UTC Exchanges
-    json_template = """{
+    json_template1 = """{
        "reports": [{
            "report": {
              "dimensions": [{"alias": "exchange", "column": "exchange" },
@@ -65,9 +67,92 @@ def utc_fetch_from_spikelet(start_date, end_date):
        "format": "csv"
      }"""
 
+    json_template = """
+{
+   "reports" : [
+      {
+         "report" : {
+            "orderedBy" : [
+               {
+                  "field" : "agency_id",
+                  "order" : "ASC"
+               },
+               {
+                  "order" : "ASC",
+                  "field" : "buying_type"
+               },
+               {
+                  "order" : "ASC",
+                  "field" : "impressions"
+               }
+
+            ],
+            "schema" : [
+               "agency_id",
+               "buying_type",
+               "impressions",
+               "media_spent_cc"
+            ],
+            "metrics" : [
+               {
+                  "alias" : "impressions",
+                  "expression" : {
+                     "op" : "column",
+                     "aggregation" : "sum",
+                     "column" : "impressions"
+                  }
+               },
+               {
+                  "expression" : {
+                     "aggregation" : "sum",
+                     "op" : "column",
+                     "column" : "media_spent_cc"
+                  },
+                  "alias" : "media_spent_cc"
+               }
+            ],
+            "filters" : [
+               {
+                  "kind" : "include",
+                  "column" : "agency_id",
+                  "values" : [
+                     "676"
+                  ]
+               },
+               {
+                  "column" : "buying_type",
+                  "kind" : "include",
+                  "values" : [
+                     "PMP",
+                     "RTB"
+                  ]
+               }
+            ],
+            "dimensions" : [
+               {
+                  "column" : "agency_id",
+                  "alias" : "agency_id"
+               },
+               {
+                  "alias" : "buying_type",
+                  "column" : "buying_type"
+               }
+            ]
+         }
+      }
+   ],
+   "interval" : {
+      "start" : "2017-07-01",
+      "end" : "2017-08-01",
+      "tz" : 0
+   },
+    "format" : "csv"
+}
+            """
+
     json_data = json.loads(json_template)
-    json_data['interval']['start'] = start_date
-    json_data['interval']['end'] = end_date
+    #json_data['interval']['start'] = start_date
+    #json_data['interval']['end'] = end_date
 
     # print(json_data)
     try:
@@ -77,7 +162,7 @@ def utc_fetch_from_spikelet(start_date, end_date):
         print('Can\'t connect to http://{0}:{1} is it alive?'.format(spikelet_host, spikelet_port))
 
     csv_data = r.content
-    # print(csv_data)
+    print(csv_data)
     return csv_data
 
 
@@ -85,7 +170,7 @@ def store_in_mysql(csv_data):
     csv_lines = csv_data.splitlines()
     reader = csv.reader(csv_lines, delimiter=',')
 
-    with db_connection, db_connection.cursor() as cursor:
+    with db_connection(), db_connection().cursor() as cursor:
         for row in islice(reader, 1, None):  # trick to get rid of leading row
             # for row in reader:
             date = row[1]
@@ -95,8 +180,8 @@ def store_in_mysql(csv_data):
             query = """INSERT INTO strikead (date, ssp, impressions, spent_imp) VALUES ("{0}", "{1}", {2}, {3});"""
             sql = (query.format(date, ssp, impressions, spent_imp))
             print(sql)
-            # cursor.execute(sql)
-    db_connection.close()
+            cursor.execute(sql)
+    db_connection().close()
 
 
 if __name__ == '__main__':
