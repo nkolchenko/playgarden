@@ -91,7 +91,7 @@ def utc_fetch_from_spikelet():
                "agency_id",
                "buying_type",
                "impressions",
-               "media_spent_cc"
+               "media_spent"
             ],
             "metrics" : [
                {
@@ -106,9 +106,9 @@ def utc_fetch_from_spikelet():
                   "expression" : {
                      "aggregation" : "sum",
                      "op" : "column",
-                     "column" : "media_spent_cc"
+                     "column" : "media_spent"
                   },
-                  "alias" : "media_spent_cc"
+                  "alias" : "media_spent"
                }
             ],
             "filters" : [

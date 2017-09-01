@@ -40,7 +40,7 @@ def extract_data_from_zip():
              if i != 1:
                  print('got '+str(i)+' files instead of 1 inside archive: '+str(zip_file_name))
              else:
-                 ##print('file name in archive :'+file_list[0])
+                 ##print('mapping_file name in archive :'+file_list[0])
                  ##print(zipfile.ZipFile.getinfo(myzip,file_list[0]))
                  zipfile.ZipFile.extractall(myzip,zip_file_dir)
                  source=zip_file_dir+arch_file[0]
@@ -48,7 +48,7 @@ def extract_data_from_zip():
                  os.rename(source,dest)
 
     except IOError:
-        print("No such file or directory: "+str(zip_file_name))
+        print("No such mapping_file or directory: "+str(zip_file_name))
 
     except Exception as e:
         print('foo', fmt_last_exception())
