@@ -35,6 +35,75 @@ def main_cycle():
     data = utc_fetch_from_spikelet()
     #store_in_mysql(data)
 
+def ad_hoc_fetch():
+    """just put your query here"""
+    json_template= """{
+        "reports":[{
+            "report":{
+                "dimensions": [{"alias":"days",
+                                "column":"event_day",
+                                "format":{"pattern":"yyyy-MM-dd","type":"date"}
+                               },
+                               {"alias":"campaign_id",
+                                "column":"campaign_id"
+                               },
+                               {"alias":"campaign_id_name",
+                                "column":"campaign_name"
+                                },
+                                {"alias":"ad_id",
+                                "column":"ad_id"},
+                                {"alias":"ad_id_name",
+                                "column":"line_item_name"},
+                                {"alias":"currency_name","column":"currency_name"},
+                                {"alias":"agency_id","column":"agency_id"}
+                                ],
+                "metrics":[{"alias":"media_spent_imp",
+                            "expression":
+                                {"op":"column",
+                                 "column":"media_spent_cc",
+                                 "aggregation":"sum"
+                                 },
+                "format":{  "type":"number",
+                            "decimal_mark":".",
+                            "precison":2,
+                            "zero_represenation":"0"}
+                            },{"alias":"total_spend",
+                            "expression":{"op":"+",
+                                         "left":{"op":"column","column":"media_spent_cc","aggregation":"sum"},
+                                         "right":{"op":"+","left":{"op":"column","column":"system_margin_cc","aggregation":"sum"},
+                                         "right":{"op":"+","left":{"op":"column","column":"agency_margin_cc","aggregation":"sum"},
+                                         "right":{"op":"+","left":{"op":"column","column":"third_party_cost_1_cc","aggregation":"sum"},
+                                         "right":{"op":"column","column":"third_party_cost_2_cc","aggregation":"sum"}}}}},
+                            "format":{"type":"number","decimal_mark":".","precision":2,"zero_represenation":"0"}}],
+                            "filters":[{"kind":"include","column":"agency_id","values":["3178","3042"]}],
+                            "orderedBy":[{"field":"media_spent_imp","order":"DESC"}],
+                            "schema":["days",
+                                      "campaign_id",
+                                      "campaign_id_name",
+                                      "ad_id","ad_id_name",
+                                      "currency_name",
+                                      "media_spent_imp",
+                                      "total_spend",
+                                      "agency_id"]}
+                                      }],
+                            "interval":{"start":"2017-01-01 00:00","end":"2017-10-01 00:00","tz":0},"format":"csv"}"""
+
+    json_data = json.loads(json_template)
+    #json_data['interval']['start'] = start_date
+    #json_data['interval']['end'] = end_date
+
+    print(json_data)
+
+    try:
+        r = requests.post(spikelet_url, json=json_data)  # XXX:
+        # print(r.text)
+    except requests.exceptions.ConnectionError:
+        print('Can\'t connect to http://{0}:{1} is it alive?'.format(spikelet_host, spikelet_port))
+
+    csv_data = r.content
+    print(csv_data)
+    return csv_data
+
 
 def utc_fetch_from_spikelet():
     """
@@ -165,6 +234,14 @@ def utc_fetch_from_spikelet():
     print(csv_data)
     return csv_data
 
+def store_in_file():
+    output_file='/Users/nkolchenko/spikelet_query_2017.out'
+    with open(str(output_file), 'wb') as out_file:
+        print('out_file: ' + str(output_file))
+        cont=ad_hoc_fetch()
+        out_file.write(cont)
+        print('written')
+
 
 def store_in_mysql(csv_data):
     csv_lines = csv_data.splitlines()
@@ -185,4 +262,5 @@ def store_in_mysql(csv_data):
 
 
 if __name__ == '__main__':
-    main_cycle()
+#    main_cycle()
+    store_in_file()
