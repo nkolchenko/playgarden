@@ -37,7 +37,10 @@ def main_cycle():
 
 def ad_hoc_fetch():
     """just put your query here"""
-    json_template= """{
+    #SUP-1411
+    json_template="""{"reports":[{"report":{"dimensions":[{"alias":"advertiser_id","column":"advertiser_id"},{"alias":"advertiser_id_name","column":"advertiser_name"},{"alias":"campaign_id","column":"campaign_id"},{"alias":"campaign_id_name","column":"campaign_name"},{"alias":"size","column":"size"},{"alias":"currency_name","column":"currency_name"}],"metrics":[{"alias":"total_spend","expression":{"op":"+","left":{"op":"column","column":"media_spent_cc","aggregation":"sum"},"right":{"op":"+","left":{"op":"column","column":"system_margin_cc","aggregation":"sum"},"right":{"op":"+","left":{"op":"column","column":"agency_margin_cc","aggregation":"sum"},"right":{"op":"+","left":{"op":"column","column":"third_party_cost_1_cc","aggregation":"sum"},"right":{"op":"column","column":"third_party_cost_2_cc","aggregation":"sum"}}}}},"format":{"type":"number","decimal_mark":".","precision":2,"zero_represenation":"0"}},{"alias":"impressions","expression":{"op":"column","column":"impressions","aggregation":"sum"},"format":{"type":"number","decimal_mark":".","precision":0,"zero_represenation":"0"}},{"alias":"clicks","expression":{"op":"column","column":"clicks","aggregation":"sum"},"format":{"type":"number","decimal_mark":".","precision":0,"zero_represenation":"0"}}],"filters":[{"kind":"include","column":"agency_id","values":["3346"]}],"orderedBy":[{"field":"total_spend","order":"DESC"}],"schema":["advertiser_id","advertiser_id_name","campaign_id","campaign_id_name","size","currency_name","total_spend","impressions","clicks"]}}],"interval":{"start":"2017-01-01 00:00","end":"2017-10-01 00:00","tz":0},"format":"tsv"}"""
+    #SUP-1409
+    json_template1 = """{
         "reports":[{
             "report":{
                 "dimensions": [{"alias":"days",
@@ -75,7 +78,7 @@ def ad_hoc_fetch():
                                          "right":{"op":"+","left":{"op":"column","column":"third_party_cost_1_cc","aggregation":"sum"},
                                          "right":{"op":"column","column":"third_party_cost_2_cc","aggregation":"sum"}}}}},
                             "format":{"type":"number","decimal_mark":".","precision":2,"zero_represenation":"0"}}],
-                            "filters":[{"kind":"include","column":"agency_id","values":["3178","3042"]}],
+                            "filters":[{"kind":"include","column":"agency_id","values":["3346"]}],
                             "orderedBy":[{"field":"media_spent_imp","order":"DESC"}],
                             "schema":["days",
                                       "campaign_id",
@@ -86,7 +89,7 @@ def ad_hoc_fetch():
                                       "total_spend",
                                       "agency_id"]}
                                       }],
-                            "interval":{"start":"2017-01-01 00:00","end":"2017-10-01 00:00","tz":0},"format":"csv"}"""
+                            "interval":{"start":"2017-01-01 00:00","end":"2017-10-01 00:00","tz":0},"format":"tsv"}"""
 
     json_data = json.loads(json_template)
     #json_data['interval']['start'] = start_date
@@ -235,7 +238,7 @@ def utc_fetch_from_spikelet():
     return csv_data
 
 def store_in_file():
-    output_file='/Users/nkolchenko/spikelet_query_2017.out'
+    output_file='/Users/nkolchenko/spikelet_query_2017_3346_2.tsv'
     with open(str(output_file), 'wb') as out_file:
         print('out_file: ' + str(output_file))
         cont=ad_hoc_fetch()
@@ -264,3 +267,4 @@ def store_in_mysql(csv_data):
 if __name__ == '__main__':
 #    main_cycle()
     store_in_file()
+#    ad_hoc_fetch()
