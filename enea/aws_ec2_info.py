@@ -18,21 +18,30 @@ import csv
 
 import boto3
 
-aws_keys_file = '/Users/nkolchenko/.aws_knp/my_config.csv'
+import argparse
+
+#aws_keys_file = '/Users/nkolchenko/.aws_knp/my_config.csv'
 output_file = '/Users/nkolchenko/.aws_knp/aws_result.csv'
+
+parser = argparse.ArgumentParser(prog='aws_ec2_info.py',
+                                 description='Tool to gather some info on EC2 instances available for a list of users')
+parser.add_argument('-cfg', metavar='/path/to/config', required=True, help='Full path to config. Required option.')
+args = parser.parse_args()
+
+aws_keys_file = str(args.cfg)
 
 with open(aws_keys_file, 'r') as creds:
     with open(output_file, 'wb') as out_file:
         reader = csv.DictReader(creds, delimiter=',', quotechar='"')
         for row in reader:
             ACCESS_KEY = row['Access key ID']
-            # SECRET_KEY = row['Secret access key']
+            #SECRET_KEY = row['Secret access key']
             SESSION_TOKEN = row['Session Token']
 
             client = boto3.client(
                 'ec2',
                 aws_access_key_id=ACCESS_KEY,
-                # aws_secret_access_key=SECRET_KEY,
+                #aws_secret_access_key=SECRET_KEY
                 aws_session_token=SESSION_TOKEN
             )
             response = client.describe_vpcs()
