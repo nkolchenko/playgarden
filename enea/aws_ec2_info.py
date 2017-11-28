@@ -60,3 +60,4 @@ with open(aws_keys_file, 'r') as creds:
                 # simpliest way:
                 data = (instance_name + ',' + instance_type + ',' + instance_zone)
                 out_file.write(data + '\n')
+
