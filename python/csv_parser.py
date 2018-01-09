@@ -6,12 +6,12 @@ from __future__ import print_function
 import os.path
 import csv
 pair_1='427983,427986,427987,427988'
-# clicks - 45719     imps - 45717
+# clicks - 45719     impressions - 45717
 pair_2='427989,427990,427991,427992'
-# clicks - 45720     imps - 45718
+# clicks - 45720     impressions - 45718
 empty=''
-csv_file="/Users/nkolchenko/111.csv"
-outfile="/Users/nkolchenko/45718.csv"
+csv_file="/Users/nkolchenko/117.csv"
+outfile="/Users/nkolchenko/45718_5.csv"
 
 # "timestamp","ad_id","creative_id","retarget_pid","idfa","idfa_md5","idfa_sha1","device_id_sha1","device_id_md5",
 # "platform_id_sha1","platform_id_md5","impressions","clicks"

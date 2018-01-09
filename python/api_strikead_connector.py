@@ -10,7 +10,7 @@ import json
 fusion_base = 'https://api.strikead.com/v1.1'
 
 def get_auth_token():
-    with open('/Users/nkolchenko/fusion-api/sign_in.json', 'r') as json_file:
+    with open('/Users/nkolchenko/fusion-api/sign_in.json_kolchenko', 'r') as json_file:
         data = json.load(json_file)
 
     try:

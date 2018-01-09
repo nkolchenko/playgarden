@@ -11,7 +11,7 @@ silex = get_auth_token()
 print(silex)
 
 campaign_ids = [
-#    6882
+    6882
 ]
 
 for campaign_id in campaign_ids:
@@ -23,11 +23,12 @@ for campaign_id in campaign_ids:
         camp_data = r.json()
 
         print(str(campaign_id)+" status: "+str(r.status_code))
-        #print(r.text)
+        print(r.text)
+
 
     except ValueError:
         print('FAILED TO PROCESS CAMPAIGN_ID {0}: response is invalid JSON'.format(campaign_id))
-
+    '''
     line_item_params = camp_data["line_items"]  # it's a comma separated list of all the line items with their settings
 #    targetings = line_items_params[0]
 
@@ -56,3 +57,4 @@ for campaign_id in campaign_ids:
     r.raise_for_status()
     print(r.status_code)
 
+'''
