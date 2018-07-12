@@ -1,0 +1,26 @@
+import requests
+
+text = "Thanks God it's Friday today!"
+
+def make_qr_image(data):
+    'Create a computer readable matrix barcode, QR, in a PNG format'
+	# Google Chart REST API documented at:
+    # https://developers.google.com/chart/infographics/docs/qr_codes
+    root_url = 'https://chart.googleapis.com/chart?'
+    query = dict(cht='qr', chs='300x300', chl=data, chld='Q')
+    r = requests.get(root_url, params=query)
+    image = r.content
+    # verify file's fingerprint
+    # http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
+    assert list(image[:8]) == [137, 80, 78, 71, 13, 10, 26, 10]
+    return image
+
+image = make_qr_image(text)
+            
+filename = '10zl.png'
+with open(filename, 'wb') as image_file:
+    image_file.write(image)    
+
+if __name__ == '__main__':
+    make_qr_image(text)
+	
